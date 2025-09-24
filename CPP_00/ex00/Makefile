@@ -11,7 +11,7 @@ all : $(NAME)
 $(NAME) : $(OBJ)
 	$(CPP) $(CPP_FLAGS) $(OBJ) -o $(NAME)
 
-$(OBJ) : $(SRC)
+%.o : %.cpp
 	$(CPP) $(CPP_FLAGS) -c $< -o $@
 
 clean :
