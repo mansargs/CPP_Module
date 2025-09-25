@@ -12,13 +12,13 @@ all : $(NAME)
 $(NAME) : $(OBJ)
 	$(CPP) $(CPP_FLAGS) $(OBJ) -o $(NAME)
 
-$(OBJ) : $(SRC)
-	$(CPP) $(CPP_FLAGS) $(HDRS) -c $< -o $@
+%.o: %.cpp $(HDRS)
+	$(CPP) $(CPP_FLAGS) -c $< -o $@
 
 clean :
 	rm -f $(OBJ)
 
-flcean : clean
+fclean : clean
 	rm -f $(NAME)
 
 re : fclean all

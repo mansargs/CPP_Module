@@ -14,8 +14,6 @@ int main(int argc, char **argv)
 			std::cout << static_cast<char>(std::toupper
 				(static_cast<unsigned char>(argv[i][j])));
 	}
-	std::cout << static_cast<char>(std::toupper
-				(static_cast<unsigned char>(-78)));
 	std::cout << std::endl;
 	return 0;
 }
