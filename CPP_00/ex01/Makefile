@@ -4,7 +4,7 @@ CPP = c++
 CPP_FLAGS = -Wall -Wextra -Werror -std=c++98
 
 HDRS = Contact.hpp PhoneBook.hpp
-SRC  = PhoneBook.cpp
+SRC  = PhoneBook.cpp Contact.cpp Main.cpp
 OBJ  = $(SRC:.cpp=.o)
 
 all : $(NAME)
@@ -12,8 +12,9 @@ all : $(NAME)
 $(NAME) : $(OBJ)
 	$(CPP) $(CPP_FLAGS) $(OBJ) -o $(NAME)
 
-%.o : %.cpp
-	$(CPP) $(CPP_FLAGS) $(HDRS) -c $< -o $@
+%.o: %.cpp $(HDRS)
+	$(CPP) $(CPP_FLAGS) -c $< -o $@
+
 
 clean :
 	rm -f $(OBJ)

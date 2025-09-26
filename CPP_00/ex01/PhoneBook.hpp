@@ -7,16 +7,21 @@
 class PhoneBook
 {
 	private:
-		Contact	ContactsData[8];
-		size_t	size;
+		static const int max_size = 8;
+		Contact contactsData[max_size];
+		size_t size;
+		size_t next;
+
 	private:
-		static int			check_stream(std::istream &in = std::cin);
-		static std::string	formated_text(const std::string &field);
-		void				display_contact(std::ostream &out = std::cout, int index);
-		void				add_contact();
-		void				search_contact();
-		void				exit_phonebook();
-		void				execute_command(const std::string &command);
+		static std::string formatText(const std::string &field);
+		static int checkStream();
+		static std::string trim(const std::string &s);
+		static std::string readValue(const std::string &prompt);
+
+		void displayAllContacts() const;
+		void displayContact(int index) const;
+		void addContact();
+		void searchContact();
 
 	public:
 		PhoneBook();
