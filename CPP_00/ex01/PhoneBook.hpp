@@ -7,16 +7,18 @@
 class PhoneBook
 {
 	private:
-		static const int max_size = 8;
+		static const size_t max_size = 8;
 		Contact contactsData[max_size];
 		size_t size;
 		size_t next;
 
 	private:
-		static std::string formatText(const std::string &field);
-		static int checkStream();
-		static std::string trim(const std::string &s);
-		static std::string readValue(const std::string &prompt);
+		static bool validateNames(const std::string &name);
+		static bool validateNickname(const std::string &nickname);
+		static bool validatePhoneNumber(const std::string &phone);
+	private:
+		std::string readLine(const std::string &prompt, bool (*check)(const std::string &));
+		static std::string trim_spaces_nonprintable(const std::string &s);
 
 		void displayAllContacts() const;
 		void displayContact(int index) const;

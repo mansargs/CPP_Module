@@ -1,162 +1,143 @@
 #include <limits>
 #include <iomanip>
 #include <cstdlib>
+#include <cctype>
+#include <iostream>
 #include "PhoneBook.hpp"
 
-int PhoneBook::checkStream()
+std::string PhoneBook::trim_spaces_nonprintable(const std::string &s)
 {
-	if (std::cin.eof())
-		return 1;
-	if (std::cin.fail())
-	{
-		std::cerr << "Input has failed\n";
-		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		return 1;
-	}
-	else if (std::cin.bad())
-	{
-		std::cerr << "Serious input problem\n";
-		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		std::exit(1);
-	}
-	return 0;
+	size_t start = 0;
+	while (start < s.length() && (std::isspace(static_cast<unsigned char>(s[start]))
+			|| !std::isprint(static_cast<unsigned char>(s[start]))))
+		++start;
+	if (start == s.length())
+		return "";
+	size_t end = s.length() - 1;
+	while (end > start && (std::isspace(static_cast<unsigned char>(s[end]))
+			|| !std::isprint(static_cast<unsigned char>(s[end]))))
+		--end;
+	return s.substr(start, end - start + 1);
 }
 
-std::string	formatedText(const std::string &field)
+static std::string formattedText(const std::string &field)
 {
 	if (field.length() > 10)
 		return field.substr(0, 9) + ".";
 	return field;
 }
 
-std::string PhoneBook::trim(const std::string &s)
-{
-	size_t start = 0;
-	while (start < s.length() && std::isspace(static_cast<unsigned char>(s[start])))
-		++start;
-	if (start == s.length())
-		return "";
-	size_t end = s.length() - 1;
-	while (end > start && std::isspace(static_cast<unsigned char>(s[end])))
-		--end;
-	return s.substr(start, end - start + 1);
-}
-
-void	PhoneBook::displayAllContacts() const
-{
-	for (size_t i = 0; i < size; ++i)
-	{
-		std::cout << std::right;
-		std::cout << std::setw(10) << i + 1 << '|'
-			<< std::setw(10) << formatedText(contactsData[i].getFirstName()) << '|'
-			<< std::setw(10) << formatedText(contactsData[i].getLastName()) << '|'
-			<< std::setw(10) << formatedText(contactsData[i].getNickname()) << std::endl;
-	}
-	std::cout << std::left;
-}
-
-void	PhoneBook::displayContact(int index) const
-{
-	std::cout << "Firstname: " << contactsData[index].getFirstName() << std::endl
-			  << "Lastname: " << contactsData[index].getLastName() << std::endl
-			  << "Nickname: " << contactsData[index].getNickname() << std::endl
-			  << "Phone number: " << contactsData[index].getPhoneNumber() << std::endl
-			  << "Darkest Secret: " << contactsData[index].getDarkestSecret() << std::endl;
-}
-
-void PhoneBook::searchContact()
-{
-	std::string choice;
-
-	while (true)
-	{
-		displayAllContacts();
-		std::cout << "Enter the index of the contact: ";
-		std::cin >> choice;
-		if (checkStream())
-			break;
-		choice = trim(choice);
-		if (choice.length() != 1 || choice[0] < '1' || choice[0] > '0' + max_size)
-		{
-			std::cout << "Invalid index\n";
-			continue;
-		}
-		displayContact(choice[0] - '0' - 1);
-		std::cout << "Search again (Y/N): ";
-		std::cin >> choice;
-		if (checkStream())
-			break;
-		choice = trim(choice);
-		if (choice.length() != 1 || (choice[0] != 'Y' && choice[0] != 'y'))
-			break;
-	}
-}
-
-std::string PhoneBook::readValue(const std::string &prompt)
+std::string PhoneBook::readLine(const std::string &prompt, bool (*check)(const std::string &))
 {
 	std::string input;
 	while (true)
 	{
 		std::cout << prompt;
-		std::getline(std::cin, input);
-		if (checkStream())
-			continue ;
-		input = trim(input);
-		if (!input.empty())
+		if (!std::getline(std::cin, input))
 		{
-			std::cout << "Field can't contain only spaces\n";
-			continue ;
+			if (std::cin.eof())
+				std::cout << "\nEOF detected. Exiting...\n";
+			else
+				std::cout << "\nStream has failed\n";
+			std::exit(0);
 		}
-		std::cout << "Field can't be empty. Please try again.\n";
+		input = trim_spaces_nonprintable(input);
+		if (input.empty())
+		{
+			std::cout << "Invalid field try again. Field can't be empty, nonprintable simbols or all spaces\n";
+			continue;
+		}
+		if (!check || check(input))
+			break;
 	}
 	return input;
 }
-std::string foo()
+
+void PhoneBook::displayAllContacts() const
 {
-	return (std::string("asd"));
+	std::cout << std::right;
+	for (size_t i = 0; i < size; ++i)
+	{
+        std::cout << std::setw(10) << i + 1 << '|'
+        << std::setw(10) << formattedText(contactsData[i].getFirstName()) << '|'
+        << std::setw(10) << formattedText(contactsData[i].getLastName()) << '|'
+        << std::setw(10) << formattedText(contactsData[i].getNickname()) << '\n';
+	}
+	std::cout << std::left;
 }
+
+void PhoneBook::displayContact(int index) const
+{
+	std::cout << "Firstname: " << contactsData[index].getFirstName() << '\n'
+			  << "Lastname: " << contactsData[index].getLastName() << '\n'
+			  << "Nickname: " << contactsData[index].getNickname() << '\n'
+			  << "Phone number: " << contactsData[index].getPhoneNumber() << '\n'
+			  << "Darkest Secret: " << contactsData[index].getDarkestSecret() << '\n';
+}
+
 void PhoneBook::addContact()
 {
 	Contact newContact;
 
-	newContact.setFirstName(PhoneBook::readValue("Enter Firstname: "));
-	newContact.setLastName(PhoneBook::readValue("Enter Lastname: "));
-	newContact.setNickname(PhoneBook::readValue("Enter Nickname: "));
-	newContact.setPhoneNumber(PhoneBook::readValue("Enter Phone number: "));
-	newContact.setDarkestSecret(PhoneBook::readValue("Enter Darkest secret: "));
+	newContact.setFirstName(readLine("Enter Firstname: ", PhoneBook::validateNames));
+	newContact.setLastName(readLine("Enter Lastname: ", PhoneBook::validateNames));
+	newContact.setNickname(readLine("Enter Nickname: ", PhoneBook::validateNickname));
+	newContact.setPhoneNumber(readLine("Enter Phone number: ", PhoneBook::validatePhoneNumber));
+	newContact.setDarkestSecret(readLine("Enter Darkest secret: ", NULL));
+
 	contactsData[next] = newContact;
 	next = (next + 1) % max_size;
 	if (size < max_size)
 		++size;
 }
 
-
-void	PhoneBook::run()
+void PhoneBook::searchContact()
 {
-	std::string	command;
-
-	while(1)
+	if (size == 0)
 	{
-		std::cout << "Enter the command (ADD, SEARCH, EXIT)\n";
-		std::getline(std::cin, command);
-		if (checkStream())
-			return ;
-		if (command == "ADD")
+		std::cout << "Phonebook is empty\n";
+		return;
+	}
+	while (true)
+	{
+		displayAllContacts();
+		std::string choice = readLine("Enter the index of the contact: ", NULL);
+		if (choice.length() != 1 || choice[0] < '1' || choice[0] > '0' + static_cast<int>(size))
+		{
+			std::cout << "Invalid index\n";
+			continue;
+		}
+		displayContact(choice[0] - '0' - 1);
+        while (true)
+        {
+            choice = readLine("Search again (Y/N): ", NULL);
+            if (choice.length() == 1 && (choice[0] == 'Y' || choice[0] == 'y' || choice[0] == 'N' || choice[0] == 'n'))
+                break;
+        }
+        if (choice == "N" || choice == "n")
+            break;
+	}
+}
+
+void PhoneBook::run()
+{
+	while (true)
+	{
+		std::string command = readLine("Enter the command (Add, Search, Exit) : ", NULL);
+
+		if (command == "Add")
 			addContact();
-		else if (command == "SEARCH")
+		else if (command == "Search")
 			searchContact();
-		else if (command == "EXIT")
+		else if (command == "Exit")
 			std::exit(0);
 		else
-			std::cout << "Command not found: Write the command in capital letters\n";
+			std::cout << "Error: command must be Add, Search or Exit\n";
 	}
 }
 
 int main()
 {
-	PhoneBook	instance;
-
+	PhoneBook instance;
 	instance.run();
 }

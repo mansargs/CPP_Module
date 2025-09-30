@@ -7,21 +7,20 @@ HDRS = Contact.hpp PhoneBook.hpp
 SRC  = PhoneBook.cpp Contact.cpp Main.cpp
 OBJ  = $(SRC:.cpp=.o)
 
-all : $(NAME)
+all: $(NAME)
 
-$(NAME) : $(OBJ)
+$(NAME): $(OBJ)
 	$(CPP) $(CPP_FLAGS) $(OBJ) -o $(NAME)
 
 %.o: %.cpp $(HDRS)
 	$(CPP) $(CPP_FLAGS) -c $< -o $@
 
-
-clean :
+clean:
 	rm -f $(OBJ)
 
-flcean : clean
+fclean: clean
 	rm -f $(NAME)
 
-re : fclean all
+re: fclean all
 
-.PHONY : all clean fclean re
+.PHONY: all clean fclean re
