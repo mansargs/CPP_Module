@@ -1,5 +1,4 @@
 #include "PhoneBook.hpp"
-#include <cctype>
 
 PhoneBook::PhoneBook() : size(0), next(0) {}
 
@@ -45,4 +44,26 @@ bool PhoneBook::validatePhoneNumber(const std::string &phone)
 		return false;
 	}
 	return true;
+}
+
+std::string PhoneBook::trim_spaces_nonprintable(const std::string &s)
+{
+	size_t start = 0;
+	while (start < s.length() && (std::isspace(static_cast<unsigned char>(s[start]))
+			|| !std::isprint(static_cast<unsigned char>(s[start]))))
+		++start;
+	if (start == s.length())
+		return "";
+	size_t end = s.length() - 1;
+	while (end > start && (std::isspace(static_cast<unsigned char>(s[end]))
+			|| !std::isprint(static_cast<unsigned char>(s[end]))))
+		--end;
+	return s.substr(start, end - start + 1);
+}
+
+std::string PhoneBook::formattedText(const std::string &field)
+{
+	if (field.length() > 10)
+		return field.substr(0, 9) + ".";
+	return field;
 }

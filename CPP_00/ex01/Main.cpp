@@ -1,31 +1,7 @@
 #include <limits>
 #include <iomanip>
 #include <cstdlib>
-#include <cctype>
-#include <iostream>
 #include "PhoneBook.hpp"
-
-std::string PhoneBook::trim_spaces_nonprintable(const std::string &s)
-{
-	size_t start = 0;
-	while (start < s.length() && (std::isspace(static_cast<unsigned char>(s[start]))
-			|| !std::isprint(static_cast<unsigned char>(s[start]))))
-		++start;
-	if (start == s.length())
-		return "";
-	size_t end = s.length() - 1;
-	while (end > start && (std::isspace(static_cast<unsigned char>(s[end]))
-			|| !std::isprint(static_cast<unsigned char>(s[end]))))
-		--end;
-	return s.substr(start, end - start + 1);
-}
-
-static std::string formattedText(const std::string &field)
-{
-	if (field.length() > 10)
-		return field.substr(0, 9) + ".";
-	return field;
-}
 
 std::string PhoneBook::readLine(const std::string &prompt, bool (*check)(const std::string &))
 {
@@ -44,7 +20,7 @@ std::string PhoneBook::readLine(const std::string &prompt, bool (*check)(const s
 		input = trim_spaces_nonprintable(input);
 		if (input.empty())
 		{
-			std::cout << "Invalid field try again. Field can't be empty, nonprintable simbols or all spaces\n";
+			std::cout << "Invalid field try again. Field can't be empty, nonprintable symbols or all spaces\n";
 			continue;
 		}
 		if (!check || check(input))
@@ -56,6 +32,10 @@ std::string PhoneBook::readLine(const std::string &prompt, bool (*check)(const s
 void PhoneBook::displayAllContacts() const
 {
 	std::cout << std::right;
+	std::cout << std::setw(10) << "Index" << '|'
+		  << std::setw(10) << "First Name" << '|'
+		  << std::setw(10) << "Last Name" << '|'
+		  << std::setw(10) << "Nickname" << '\n';
 	for (size_t i = 0; i < size; ++i)
 	{
         std::cout << std::setw(10) << i + 1 << '|'
@@ -100,7 +80,15 @@ void PhoneBook::searchContact()
 	}
 	while (true)
 	{
-		displayAllContacts();
+		try
+		{
+			displayAllContacts();
+		}
+		catch (const std::exception &e)
+		{
+			std::cout << std::endl << e.what() << std::endl;
+			std::exit(1);
+		}
 		std::string choice = readLine("Enter the index of the contact: ", NULL);
 		if (choice.length() != 1 || choice[0] < '1' || choice[0] > '0' + static_cast<int>(size))
 		{
@@ -123,16 +111,16 @@ void PhoneBook::run()
 {
 	while (true)
 	{
-		std::string command = readLine("Enter the command (Add, Search, Exit) : ", NULL);
+		std::string command = readLine("Enter the command (ADD, SEARCH, EXIT) : ", NULL);
 
-		if (command == "Add")
+		if (command == "ADD")
 			addContact();
-		else if (command == "Search")
+		else if (command == "SEARCH")
 			searchContact();
-		else if (command == "Exit")
+		else if (command == "EXIT")
 			std::exit(0);
 		else
-			std::cout << "Error: command must be Add, Search or Exit\n";
+			std::cout << "Error: command must be ADD, SEARCH or EXIT\n";
 	}
 }
 

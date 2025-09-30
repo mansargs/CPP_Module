@@ -3,6 +3,7 @@
 
 # include "Contact.hpp"
 # include <iostream>
+# include <cctype>
 
 class PhoneBook
 {
@@ -19,7 +20,7 @@ class PhoneBook
 	private:
 		std::string readLine(const std::string &prompt, bool (*check)(const std::string &));
 		static std::string trim_spaces_nonprintable(const std::string &s);
-
+		static std::string formattedText(const std::string &field);
 		void displayAllContacts() const;
 		void displayContact(int index) const;
 		void addContact();
